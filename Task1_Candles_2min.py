@@ -1,6 +1,5 @@
-import pandas as pd
 from datetime import timedelta
-
+import pandas as pd
 
 # skip Header
 title = ['timestamp', 'open', 'high', 'low', 'close', 'volume']
