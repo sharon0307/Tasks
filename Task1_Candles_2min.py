@@ -1,11 +1,23 @@
 from datetime import timedelta
 import pandas as pd
+import os 
+
 
 # skip Header
 title = ['timestamp', 'open', 'high', 'low', 'close', 'volume']
 
+# Get the current working directory
+cwd = os.getcwd()
+
+#specify the file name 
+filename = "RELIANCE_1m (1).csv"
+
+# Create the full path
+file_path = os.path.join(cwd, filename) 
+
+
 # Read file and create a DataFrame
-df = pd.read_csv("RELIANCE_1m (1).csv", header=None, names=title, skiprows=1)
+df = pd.read_csv(file_path, header=None, names=title, skiprows=1)
 
 # Convert the Unix time to date_time format
 df['timestamp'] = pd.to_datetime(df['timestamp'], errors='coerce', unit='s')
