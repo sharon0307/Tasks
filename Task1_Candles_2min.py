@@ -1,7 +1,7 @@
 from datetime import timedelta
+import os
 import pandas as pd
-import os 
-
+ 
 
 # skip Header
 title = ['timestamp', 'open', 'high', 'low', 'close', 'volume']
@@ -29,20 +29,20 @@ df.set_index('timestamp', inplace=True)
 # Create the Timedelta which is in (days/sec/micro sec/milli sec/min/hrs/weeks)
 two_min = timedelta(minutes=2)
 
-# Resample time-series data (DateOffset/Timedelta/str) with .agg({any function you pass})
-new_df = df.resample(two_min, closed='right').agg({
-    'open': 'first',
-    'high': 'max',
-    'low': 'min',
-    'close': 'last',
+# Resample time-series data (DateOffset/Timedelta/str) with .apply({any function you pass})
+new_df = df.resample(two_min, closed='right').apply({
+    'open': lambda x: x.iloc[0] if len(x) > 0 else None,  # First minute's open
+    'high': lambda x: max(x.iloc[0], x.iloc[-1]) if len(x) > 0 else None,  # Max of the two minutes
+    'low': lambda x: min(x.iloc[0], x.iloc[-1]) if len(x) > 0 else None,   # Min of the two minutes
+    'close': lambda x: x.iloc[-1] if len(x) > 0 else None,  # Second minute's close
     'volume': 'sum'
-}).reset_index()  # will Reset to timestamp index
+}).dropna()  
 
-# will clear or drop any rows or columns with NaN value
-new_df = new_df.dropna()
+# Reset to timestamp index
+new_df.reset_index(inplace=True)
 
 # need to convert the date_time format of timestamp back to Unix time
 new_df['timestamp'] = new_df['timestamp'].astype('int64') // 10**9
 
 # Write the new DataFrame to an output file
-new_df.to_csv('Reliance_2_min.csv', index=False)
+new_df.to_csv('Updated_Reliance_2_min.csv', index=False)
