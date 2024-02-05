@@ -13,7 +13,10 @@ file_path = os.path.join(cwd, filename)
 
 # Read the CSV file into a DataFrame
 df = pd.read_csv(file_path)
+
+#set period
 window = 50
+
 # Calculate moving averages
 df['SMA' + str(window)] = df['close'].rolling(window).mean()
 
@@ -21,7 +24,6 @@ df['SMA' + str(window)] = df['close'].rolling(window).mean()
 df['signal'] = np.where(df['close'] > df['SMA' + str(window)], 1.0, 0.0)
 df['position'] = df['signal'].diff()
 
-# Create 'position' column based on 'signal'
 df['BE/SE'] = ''
 
 # Update 'BE/SE' based on 'position'
@@ -33,8 +35,6 @@ res = df['SMA' + str(window)].first_valid_index()
 # Update DataFrame based on the condition
 if res is not None:
     df.loc[res, ['position', 'BE/SE']] = np.nan
-
-    # Additional logic to ensure it runs only once
 
 # Find the first occurrence of 'SE' or 'BE'
 first_value = df.index[(df['BE/SE'] == 'SE') | (df['BE/SE'] == 'BE')].min()
