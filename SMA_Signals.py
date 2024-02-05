@@ -21,6 +21,7 @@ window = 50
 df['SMA' + str(window)] = df['close'].rolling(window).mean()
 
 # Generate signals
+df['signal'] = np.where(df['close'] == df['SMA' + str(window)], np.nan, np.nan)
 df['signal'] = np.where(df['close'] > df['SMA' + str(window)], 1.0, 0.0)
 df['position'] = df['signal'].diff()
 
