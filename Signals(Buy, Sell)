@@ -15,11 +15,11 @@ file_path = os.path.join(cwd, filename)
 df = pd.read_csv(file_path)
 
 # Calculate moving averages
-df['SMA10'] = df['close'].rolling(10).mean()
+df['SMA50'] = df['close'].rolling(50).mean()
 
 
 # Generate signals
-df['signal'] = np.where(df['close'] > df['SMA10'], 1.0, 0.0)
+df['signal'] = np.where(df['close'] > df['SMA50'], 1.0, 0.0)
 df['position'] = df['signal'].diff()
 
 df['BE/SE'] = ''
@@ -28,18 +28,19 @@ df['BE/SE'] = ''
 df.loc[df['position'] == -1, 'BE/SE'] = 'BE'
 df.loc[df['position'] == 1, 'BE/SE'] = 'SE'
 
-first_non_se_be_index = df.index[(df['BE/SE'] == 'SE') | (df['BE/SE'] == 'BE')].min()
-
-# Stop the condition when either 'SE' or 'BE' is found
-if first_non_se_be_index is not None:
-    df.loc[first_non_se_be_index:, 'BE/SE'] = ''
-
-    
+# Replace 1 and -1 with Buy and Sell
 df['signal'] = np.where(df['position'] == 1, 'Buy', np.where(df['position'] == -1, 'Sell', ''))
 
 
+first_value = df.index[(df['BE/SE'] == 'SE') | (df['BE/SE'] == 'BE')].min()
 
-# Check if the first value of 'SMA10' is not NaN
+# Replace the first occurrence of 'SE' or 'BE' with an empty string
+if first_value is not None:
+    df.at[first_value, 'BE/SE'] = ''
+ 
+
+
+# drop unnecessary columns
 df = df.drop(columns=['position'])
 
 # Save the DataFrame to a new CSV file
