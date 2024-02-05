@@ -31,11 +31,11 @@ df['BE/SE'] = ''
 df.loc[df['position'] == -1, 'BE/SE'] = 'BE'
 df.loc[df['position'] == 1, 'BE/SE'] = 'SE'
 
-res = df['SMA' + str(window)].first_valid_index()
+first_value_index = df['SMA' + str(window)].first_valid_index()
 
 # Update DataFrame based on the condition
-if res is not None:
-    df.loc[res, ['position', 'BE/SE']] = np.nan
+if first_value_index is not None:
+    df.loc[first_value_index, ['position', 'BE/SE']] = np.nan
 
 # Find the first occurrence of 'SE' or 'BE'
 first_value = df.index[(df['BE/SE'] == 'SE') | (df['BE/SE'] == 'BE')].min()
