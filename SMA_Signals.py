@@ -19,6 +19,7 @@ window = 50
 
 # Calculate moving averages
 df['SMA' + str(window)] = df['close'].rolling(window).mean()
+df['SMA' + str(window)] = df['SMA' + str(window)].apply(lambda x: round(x, 2))
 
 # Generate signals
 df['signal'] = np.where(df['close'] == df['SMA' + str(window)], np.nan, np.nan)
