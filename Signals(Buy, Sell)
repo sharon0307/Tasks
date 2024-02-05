@@ -15,11 +15,11 @@ file_path = os.path.join(cwd, filename)
 df = pd.read_csv(file_path)
 
 # Calculate moving averages
-df['SMA50'] = df['close'].rolling(50).mean()
+df['SMA10'] = df['close'].rolling(10).mean()
 
 
 # Generate signals
-df['signal'] = np.where(df['close'] > df['SMA50'], 1.0, 0.0)
+df['signal'] = np.where(df['close'] > df['SMA10'], 1.0, 0.0)
 df['position'] = df['signal'].diff()
 
 df['BE/SE'] = ''
