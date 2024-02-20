@@ -1,49 +1,57 @@
-
+# import necessary libraries
 import pandas as pd
-import numpy as np
 import os
+import glob
 
-# skip Header
-title = ['timestamp', 'open', 'high', 'low', 'close', 'volume']
+# use glob to get all the csv files
+# in the folder 
+path = os.getcwd()
+csv_files = glob.glob(os.path.join(path, "*.csv"))
 
-# Get the current working directory
-cwd = os.getcwd()
+# loop over the list of csv files
+for f in csv_files:
+    # read the csv file
+    df = pd.read_csv(f)
+    dataframes_list = []
 
-# specify the file name
-filename = "BANKNIFTY.csv"
+    dataframes_list.append(df)
+    for dataset in dataframes_list:
 
-# Create the full path
-file_path = os.path.join(cwd, filename)
+    # print the location and filename
+       # print('Location:', f)
+       # print('File Name:', f.split("\\")[-1])
+       # print(dataset)
+    
+    # Convert
+        df['timestamp'] = pd.to_datetime(df['timestamp'], errors='coerce', unit='s')
 
-# Read file and create a DataFrame
-df = pd.read_csv(file_path, header=None, names=title, skiprows=1)
+        df['day_change'] = (df['timestamp'].dt.day.diff() != 0).astype(int)
+        df['open'] = df['open'].multiply(100)
+        df['high'] = df['high'].multiply(100)
+        df['low'] = df['low'].multiply(100)
+        df['close'] = df['close'].multiply(100)
 
-# Convert the Unix time to datetime format
-df['timestamp'] = pd.to_datetime(df['timestamp'], errors='coerce', unit='s')
+        df['previous_day_close'] = float('nan')
+
+        first_value = False
+
+        prev_close = None
+        for index, row in df.iterrows():
+            if index == 0:
+                continue  # Skip the first row
+            if not first_value and row['day_change'] == 1:
+                first_value = True
+            if first_value and row['day_change'] == 1:
+                prev_close = df.at[index - 1, 'close']
+            if first_value:
+                df.at[index, 'previous_day_close'] = prev_close
+
+        df['timestamp'] = df['timestamp'].astype('int64') // 10 ** 9
+        df = df[['timestamp', 'open', 'high', 'low', 'close', 'volume', 'previous_day_close']]
+
+        # Output file
+        file_name = 'Output' + f.split("\\")[-1] + '.csv'
+        df.to_csv(file_name, index=False)
 
 
-df['day_change'] = (df['timestamp'].dt.day.diff() != 0).astype(int)
-df['open'] = df['open'].multiply(100)
-df['high'] = df['high'].multiply(100)
-df['low'] = df['low'].multiply(100)
-df['close'] = df['close'].multiply(100)
 
-df['previous_day_close'] = np.nan
-
-first_value = False
-
-prev_close = None
-for index, row in df.iterrows():
-    if index == 0:
-        continue  # Skip the first row
-    if not first_value and row['day_change'] == 1:
-        first_value = True
-    if first_value and row['day_change'] == 1:
-        prev_close = df.at[index - 1, 'close']
-    if first_value:
-        df.at[index, 'previous_day_close'] = prev_close
-        
-df['timestamp'] = df['timestamp'].astype('int64') // 10**9
-new_df = df[['timestamp', 'open', 'high', 'low', 'close', 'volume', 'previous_day_close']]
-
-new_df.to_csv('output.csv', index=False)
