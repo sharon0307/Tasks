@@ -5,7 +5,8 @@ import glob
 
 # use glob to get all the csv files
 # in the folder 
-path = os.getcwd()
+path = os.getcwd()  # change the path if want to get csv files from different location (use \\ instead of \)
+
 csv_files = glob.glob(os.path.join(path, "*.csv"))
 
 # loop over the list of csv files
