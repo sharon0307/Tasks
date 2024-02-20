@@ -16,11 +16,6 @@ for f in csv_files:
 
     dataframes_list.append(df)
     for dataset in dataframes_list:
-
-    # print the location and filename
-       # print('Location:', f)
-       # print('File Name:', f.split("\\")[-1])
-       # print(dataset)
     
     # Convert
         df['timestamp'] = pd.to_datetime(df['timestamp'], errors='coerce', unit='s')
